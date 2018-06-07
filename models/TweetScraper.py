@@ -7,6 +7,9 @@ import pandas as pd
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
+from models.SentimentAnalyzer import SentimentAnalyzer
+from models.TopicExtractor import TopicExtractor
+
 TWITTER_HOME = "https://twitter.com/"
 TWITTER_LOGIN ="https://twitter.com/login"
 SCROLL_PAUSE_TIME = 30
@@ -14,6 +17,8 @@ class TweetScraper:
 
     def __init__(self, username = "bigdataproject.fenza.2018@gmail.com", password="Bigdataproject2018$"):
         self.driver = webdriver.Chrome("./driver/chromedriver")
+        self.topicExtractor = TopicExtractor()
+        self.sentimentAnalyzer = SentimentAnalyzer()
         self.tweet_containers = []
         self.tweets_list = []
         self.__login(username, password)
@@ -27,53 +32,6 @@ class TweetScraper:
 
     def get_tweets(self):
         return self.tweets_list
-
-    def __write_tweet_oncsv(self, list_of_tweet, path="dataset/tweet_dataset.csv", time_step=5, ):
-        if os.path.exists(path):
-            print("Accedo al dataset...")
-            data = pd.read_csv(path, sep=",", index_col=0)  # leggo il csv relativo al dataset
-        else:
-            print("Creo la struttura del dataset...")
-            data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text'])
-            data.to_csv(path, sep=",")
-
-        row = {}
-        print("Total tweet to write: ", len(list_of_tweet))
-        for tweet in reversed(list_of_tweet):
-            try:
-                tweet_id = tweet.find_element_by_css_selector("div.content").\
-                    find_element_by_css_selector(".tweet-timestamp.js-permalink.js-nav.js-tooltip").\
-                    get_attribute("data-conversation-id")
-                print(self.tweets_list)
-                #controllo se è stato già inserito
-                print("Is tweet id Present?", tweet_id in self.tweets_list)
-                if tweet_id not in self.tweets_list:
-                    print("Tweet id not present")
-                    tweet_text = tweet.find_element_by_css_selector(".TweetTextSize.js-tweet-text.tweet-text").text
-                    tweet_text = self.__remove_emoji(tweet_text)
-                    tweet_text = tweet_text.replace("\n", " ")
-                    row['tweet_id'] = tweet_id
-                    row['username'] = self.username
-                    row['tweet_text'] = tweet_text
-                    print("Tweet id: ", tweet_id, "\nTweet text: ", tweet_text)
-
-                    print("Waiting for new tweet...")
-                    #time.sleep(time_step)
-                    self.tweets_list.append(tweet_id)
-                    data = data.append(row, ignore_index=True)
-                else:
-                    print("Nessun nuovo tweet dallo stream!")
-            except NoSuchElementException:
-                continue
-
-        data.to_csv("dataset/tweet_dataset.csv", sep=",")
-
-        print(data.shape)
-        print("Dataset is saved to " +path)
-
-
-
-
 
     def __positioning(self, from_year):
         # Get scroll height
@@ -110,9 +68,7 @@ class TweetScraper:
 
             # Wait to load page
             print("Scrivo su file...")
-            #calcolo topic
-            #calcolo sentiment
-            #calcolo collegamenti
+
             self.__write_tweet_oncsv(self.tweet_containers)
             self.tweet_containers = []
             print("Attendo nuovi tweet dallo stream")
@@ -145,6 +101,61 @@ class TweetScraper:
         pass_input.send_keys(password)
         submit_button.click()
         self.driver.get(self.driver.current_url)
+
+    def __write_tweet_oncsv(self, list_of_tweet, root_directory="dataset/", filename = "tweet_dataset.csv", time_step=5):
+        if os.path.exists(root_directory):
+            if os.path.exists(root_directory + filename):
+                print("Accedo al dataset...")
+                data = pd.read_csv(root_directory + filename, sep=",", index_col=0)  # leggo il csv relativo al dataset
+            else:
+                data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment'])
+                data.to_csv(root_directory + filename, sep=",")
+        else:
+            print("Creo la struttura del dataset...")
+            os.mkdir(root_directory)
+            data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment'])
+            data.to_csv(root_directory + filename, sep=",")
+
+        row = {}
+        print("Total tweet to write: ", len(list_of_tweet))
+        for tweet in reversed(list_of_tweet):
+            try:
+                tweet_id = tweet.find_element_by_css_selector("div.content").\
+                    find_element_by_css_selector(".tweet-timestamp.js-permalink.js-nav.js-tooltip").\
+                    get_attribute("data-conversation-id")
+                print(self.tweets_list)
+                #controllo se è stato già inserito
+                print("Is tweet id Present?", tweet_id in self.tweets_list)
+                if tweet_id not in self.tweets_list:
+                    print("Tweet id not present")
+                    tweet_text = tweet.find_element_by_css_selector(".TweetTextSize.js-tweet-text.tweet-text").text
+                    tweet_text = self.__remove_emoji(tweet_text)
+                    tweet_text = tweet_text.replace("\n", " ")
+                    #Conviene qui fare il calcolo del topic e del sentiment
+                    # calcolo topic
+
+                    # calcolo sentiment
+                    # calcolo collegamenti
+                    row['tweet_id'] = tweet_id
+                    row['username'] = self.username
+                    row['tweet_text'] = tweet_text
+                    row['topic'] = self.topicExtractor.analyze_text(tweet_text)
+                    row['sentiment'] = self.sentimentAnalyzer.extract_sentiment(tweet_text)
+                    print("Tweet id: ", tweet_id, "\nTweet text: ", tweet_text)
+
+                    print("Waiting for new tweet...")
+                    #time.sleep(time_step)
+                    self.tweets_list.append(tweet_id)
+                    data = data.append(row, ignore_index=True)
+                else:
+                    print("Nessun nuovo tweet dallo stream!")
+            except NoSuchElementException:
+                continue
+
+        data.to_csv("dataset/tweet_dataset.csv", sep=",")
+
+        print(data.shape)
+        print("Dataset is saved to " + root_directory + filename)
 
     def __remove_emoji(self, string):
         emoji_pattern = re.compile("["

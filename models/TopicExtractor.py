@@ -18,12 +18,18 @@ class TopicExtractor:
                  "Biology":0, "Nature":0, "Religion":0, "Society":0, "Business":0, "Computing":0,
                  "Electronics":0, "Engineering":0, "Transport":0, "Various":0}
 
+        #Represent the best categories that overcome the average of topics frequency
+        self.best_categories = []
+
+        #Represent the principal text's topics. Category that have frequency >0
+        self.main_topics = {}
+
 
     def check_parent_category(self, category_id, num_call):
         url = "http://193.205.163.45:8080/wikipedia-miner/services/exploreCategory?id=" + str(category_id) + "&responseFormat=json&parentCategories=true"
         categoryResponse = requests.post(url)
         categories = categoryResponse.json()
-        print(categories)
+        #print(categories)
         if num_call == 0:
             #categoryFound['Various'] = 1
             return "Various"
@@ -34,25 +40,29 @@ class TopicExtractor:
             return categories['title']
         else:
             if categories['totalParentCategories'] == 0:
-                print("Total parent categories = 0")
+                #print("Total parent categories = 0")
                 return
                 #
                 # return check_parent_category(categories['id'], num_call - 1)
             else:
                 return self.check_parent_category(categories['parentCategories'][0]['id'], num_call - 1)
 
+
     def analyze_text(self, text):
+        self.main_topics = {}
+        self.best_categories = []
         urlSearch = "http://193.205.163.45:8080/wikipedia-miner/services/wikify?source=" + text + "&responseFormat=json"
         response = requests.post(urlSearch)
         try:
             topics = response.json()['detectedTopics']
-            print(topics)
+            #print(topics)
             self.__wikify_request_for_categories(topics)
 
             print("Main topic:")
             for key in self.categoryFound:
                 if self.categoryFound[key] > 0:
                     print(key, ": ", self.categoryFound[key])
+                    self.main_topics[key] = self.categoryFound[key]
         except JSONDecodeError:# Per alcuni testi non viene fornita la risposta JSON quindi si fa il parsing dell' XML
             print("No Json... XML Parsing...")
             #attenzione ai detected topics che potrebbero non esserci
@@ -63,26 +73,51 @@ class TopicExtractor:
                     for topicChild in child:
                         topics.append({"id": topicChild.attrib['id'], "title": topicChild.attrib['title'], "weight":topicChild.attrib["weight"]})
                         #print(topicChild.tag, topicChild.attrib['id'])
-            print(topics)
+            #print(topics)
             self.__wikify_request_for_categories(topics)
 
             print("Main topic:")
             for key in self.categoryFound:
                 if self.categoryFound[key] > 0:
                     print(key, ": ", self.categoryFound[key])
+                    self.main_topics[key] = self.categoryFound[key]
+
+
+        self.__evaluate_best_topics()
+
+        return self.best_categories
+
+
+
+    def __evaluate_best_topics(self):
+        summation = 0
+        if len(self.main_topics.keys()) == 1:
+            self.best_categories.append(list(self.main_topics.keys())[0])
+
+        for key in self.main_topics:
+            summation += self.main_topics[key]
+
+        avg = summation/len(self.main_topics.keys())
+        print("Average:", avg)
+        for key in self.main_topics:
+            if self.main_topics[key] > avg:
+                self.best_categories.append(key)
+
+        print("The best categories are:")
+        print(self.best_categories)
 
     def __wikify_request_for_categories(self, topics):
 
         topicFound = False
         for topic in topics:
-            print(topic)
+            #print(topic)
             print("ID: " + str(topic['id']) + " Topic Name: " + topic['title'])
             urlArticle = "http://193.205.163.45:8080/wikipedia-miner/services/exploreArticle?id=" + str(
                 topic['id']) + "&responseFormat=json&parentCategories=true"
-            print(urlArticle)
+            print("Request:", urlArticle)
             response = requests.post(urlArticle)
             categories = response.json()
-            print(response.json())
+            #print(response.json())
             if (categories['title'] in self.categoryToFind):
                 self.categoryFound[categories['title']] += 1
                 break
