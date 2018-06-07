@@ -109,12 +109,12 @@ class TweetScraper:
                 data = pd.read_csv(root_directory + filename, sep=",", index_col=0)  # leggo il csv relativo al dataset
             else:
                 data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment'])
-                data.to_csv(root_directory + filename, sep=",")
+                data.to_csv(root_directory + filename, sep=";")
         else:
             print("Creo la struttura del dataset...")
             os.mkdir(root_directory)
             data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment'])
-            data.to_csv(root_directory + filename, sep=",")
+            data.to_csv(root_directory + filename, sep=";")
 
         row = {}
         print("Total tweet to write: ", len(list_of_tweet))
@@ -152,7 +152,7 @@ class TweetScraper:
             except NoSuchElementException:
                 continue
 
-        data.to_csv("dataset/tweet_dataset.csv", sep=",")
+        data.to_csv("dataset/tweet_dataset.csv", sep=";")
 
         print(data.shape)
         print("Dataset is saved to " + root_directory + filename)
