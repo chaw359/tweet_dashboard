@@ -40,7 +40,6 @@ class RelationsExtractor:
         jsonString='{ "nodes": [{"name":"'+self.user+'","label":"'+self.user+'","id":'+idUser+'},'
         jsonLinks = ''
         linkSentiment = sorted(self.linkSentiment.items(), key=lambda x: x[1]["total"],reverse=True)[:maxLinks]
-        print(str(linkSentiment))
         for link,sentiments in linkSentiment:
             idLink = str(self.linkIDs[link])
             totalCit = int(sentiments["total"])
