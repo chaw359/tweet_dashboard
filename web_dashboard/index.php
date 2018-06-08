@@ -13,12 +13,7 @@
 <form action="runScraper.php" method="post">
 <p> Search User : <input type="text" name="user"> <input type="submit" value="Start"> </p>
 </form>
-<?php 
 
-$command = escapeshellcmd('examplePython.py');
-$output = shell_exec($command);
-
-?>
 <svg width="960" height="600"></svg>
 
 <script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
