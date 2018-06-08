@@ -1,12 +1,14 @@
 import re
+import sys
 
 from models.TweetScraper import TweetScraper
 import pandas as pd
 from subprocess import call
 import os
 
+userToMonitor = sys.argv[1]
 scraper = TweetScraper()
-scraper.tweet_query("BigDataProject5", begin_year=2017)
+scraper.tweet_query(userToMonitor, begin_year=2017)
 
 
 

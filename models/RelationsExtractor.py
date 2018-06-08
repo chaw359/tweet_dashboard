@@ -44,7 +44,7 @@ class RelationsExtractor:
             idLink = str(self.linkIDs[link])
             totalCit = int(sentiments["total"])
             for sent, freq in sentiments.items():
-                sentiments[sent] = str(freq*100 / totalCit)+"%"
+                sentiments[sent] = str(int(freq*100 / totalCit))+"%"
             del sentiments["total"]
             jsonString += '{"name":"'+link+'","label":"'+link+'","id":'+idLink+'},'
             jsonLinks += '{"source":'+idUser+',"target":'+idLink+',"type":"'+repr(sentiments).replace("'","")+'"},'
