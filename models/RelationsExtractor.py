@@ -1,8 +1,10 @@
 import csv
 import json
 import random as rand
+from collections import OrderedDict
 
 maxIDValue = 999999999999
+maxLinks = 5
 class RelationsExtractor:
 
     def __init__(self, user = "Giovanni"):
@@ -37,7 +39,9 @@ class RelationsExtractor:
         idUser = str(self.linkIDs[self.user])
         jsonString='{ "nodes": [{"name":"'+self.user+'","label":"'+self.user+'","id":'+idUser+'},'
         jsonLinks = ''
-        for link,sentiments in self.linkSentiment.items():
+        linkSentiment = sorted(self.linkSentiment.items(), key=lambda x: x[1]["total"],reverse=True)[:maxLinks]
+        print(str(linkSentiment))
+        for link,sentiments in linkSentiment:
             idLink = str(self.linkIDs[link])
             totalCit = int(sentiments["total"])
             for sent, freq in sentiments.items():
