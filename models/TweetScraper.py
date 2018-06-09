@@ -12,7 +12,7 @@ from models.TopicExtractor import TopicExtractor
 
 TWITTER_HOME = "https://twitter.com/"
 TWITTER_LOGIN ="https://twitter.com/login"
-SCROLL_PAUSE_TIME = 30
+SCROLL_PAUSE_TIME = 10
 class TweetScraper:
 
     def __init__(self, username = "bigdataproject.fenza.2018@gmail.com", password="Bigdataproject2018$"):
@@ -28,7 +28,7 @@ class TweetScraper:
         self.username = username
         self.__search_user(username)
         self.__positioning(begin_year)
-        print("Total Tweet acquired: ", len(self.tweet_containers))
+        print("Total Tweet acquired: ", len(self.tweets_list))
 
     def get_tweets(self):
         return self.tweets_list
