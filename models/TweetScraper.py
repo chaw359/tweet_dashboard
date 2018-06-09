@@ -141,6 +141,7 @@ class TweetScraper:
                     row['tweet_text'] = tweet_text
                     row['topic'] = self.topicExtractor.analyze_text(tweet_text)
                     row['sentiment'] = self.sentimentAnalyzer.extract_sentiment(tweet_text)
+                    row['link']= self.linkCreator.calcLink(tweet_text)
                     print("Tweet id: ", tweet_id, "\nTweet text: ", tweet_text)
 
                     print("Waiting for new tweet...")
@@ -167,5 +168,3 @@ class TweetScraper:
                                    u"\U000024C2-\U0001F251"
                                    "]+", flags=re.UNICODE)
         return emoji_pattern.sub(r'', string)
-
-
