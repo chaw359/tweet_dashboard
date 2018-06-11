@@ -13,16 +13,24 @@
 <form action="runScraper.php" method="post">
 <p> Search User : <input type="text" name="user"> <input type="submit" value="Start"> </p>
 </form>
+<?php 
 
+$command = escapeshellcmd('examplePython.py');
+$output = shell_exec($command);
+
+?>
 <svg width="960" height="600"></svg>
 
 <script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
 <script src="http://d3js.org/d3-selection-multi.v1.js"></script>
 
 <script type="text/javascript">
-    var colors = d3.scaleOrdinal(d3.schemeCategory10);
+	
+	setInterval(drawGraph, 5000);
 
-    var svg = d3.select("svg"),
+	var colors = d3.scaleOrdinal(d3.schemeCategory10);
+	
+	var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height"),
         node,
@@ -41,12 +49,20 @@
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
         .attr('fill', '#999')
         .style('stroke','none');
+		
+function drawGraph() {
+	    
+		svg.selectAll(".link").remove();
+		svg.selectAll(".edgepath").remove();
+		svg.selectAll(".edgelabel").remove();
+		svg.selectAll(".node").remove();
 
-    var simulation = d3.forceSimulation()
-        .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(100).strength(1))
+		
+		    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(200).strength(0.1))
         .force("charge", d3.forceManyBody())
         .force("center", d3.forceCenter(width / 2, height / 2));
-
+		
     d3.json("relations.json", function (error, graph) {
         if (error) throw error;
         update(graph.links, graph.nodes);
@@ -57,8 +73,9 @@
             .data(links)
             .enter()
             .append("line")
+			.attr("stroke-width",2)
             .attr("class", "link")
-            .attr('marker-end','url(#arrowhead)')
+            .attr('marker-end','url(#arrowhead)');
 
         link.append("title")
             .text(function (d) {return d.type;});
@@ -83,7 +100,7 @@
             .attrs({
                 'class': 'edgelabel',
                 'id': function (d, i) {return 'edgelabel' + i},
-                'font-size': 10,
+                'font-size': 12,
                 'fill': '#aaa'
             });
 
@@ -102,7 +119,7 @@
             .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
-                    //.on("end", dragended)
+                    .on("end", dragended)
             );
 
         node.append("circle")
@@ -163,12 +180,13 @@
         d.fy = d3.event.y;
     }
 
-//    function dragended(d) {
-//        if (!d3.event.active) simulation.alphaTarget(0);
-//        d.fx = undefined;
-//        d.fy = undefined;
-//    }
-
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = undefined;
+        d.fy = undefined;
+    }
+}
+	
 </script>
 
 </body>
