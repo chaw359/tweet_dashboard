@@ -1,54 +1,50 @@
-import datetime
-import pprint
-import collections
-import re
-from collections import defaultdict
-import time
+from models.SentimentAnalyzer import SentimentAnalyzer
 
-import json
-import pandas as pd
-
-import numpy as np
-import tweepy
-import SentimentAnalyzer
-from tweepy import OAuthHandler
-from tweepy.streaming import StreamListener
-import csv
-from SentimentAnalyzer import SentimentAnalyzer
-import re
 
 class LinkCreator:
-
+    """
+    The purpose of this class is to analyze a tweet's text and find tag. We suppose that a tag in a text is a link
+    between the user that tags and the tagged user.
+    """
     def __init__(self):
-        self.stringa=""
-        self.dizionario={}
-        self.tagChiave=[]
-
-    def pulisciStringa(self,stringa):
-        return stringa.replace(".", "").replace(":", "").replace(";", "").replace(",", "").replace("!", "").replace("#","").replace("@", "").replace(" ","")
+        self.text=""
+        self.linked_users=[]
 
 
-    def calcLink(self, stringa):
+    def __clean_text(self, text):
+        """
+        Clean the text of a tweet removing all possible special chars
+        :param text: text to clean
+        :return: cleaned text
+        """
+        return text.replace(".", "").replace(":", "").replace(";", "").replace(",", "").replace("!", "").replace("#","").replace("@", "").replace(" ","")
 
-        self.stringa=stringa
+
+    def find_link(self, text):
+        """
+        Given the text, this method find a link within it. A link is represented by tag (@)
+        :param text: text in which to find a link
+        :return: a list of links. If no link is found empty list is returned
+        """
+        toReturn = []
+        self.text = text
         s = SentimentAnalyzer()
 
-        for tag in stringa.split():
+        for tag in text.split():
             if tag.startswith('@'):
-                self.tagChiave.append(self.pulisciStringa(tag))
+                self.linked_users.append(self.__clean_text(tag))
+                toReturn.append(tag)
                # print("TAG CHIAVE: ",tagChiave )
 
-                #self.dizionario[tagChiave] = s.extract_sentiment(self.stringa)
-        return self.tagChiave
-       # print(self.dizionario)
+        return toReturn
 
 
-
-if __name__ == '__main__':
-    l = LinkCreator().calcLink("@Trump I hate you")
-    print(l)
-    l1 = LinkCreator().calcLink("@Trump and @Obama love you")
-    print(l1)
+    def get_all_links(self):
+        """
+        Get all links of this user
+        :return: a list of all tweet user tagged by the monitored user
+        """
+        return self.linked_users
 
 
 
