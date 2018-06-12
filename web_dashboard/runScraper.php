@@ -1,6 +1,7 @@
-<?php 
+<?php
 
-$command = escapeshellcmd('main.py '.$_POST["user"]);
+$command = escapeshellcmd('/Library/Frameworks/Python.framework/Versions/3.6/bin/python3 /Users/gfuccio/GitHub/tweet_dashboard/main.py '.$_POST["user"]);
 shell_exec($command);
 
+header("location: http://localhost/web_dashboard/dashboard.html");
 ?>
