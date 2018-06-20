@@ -124,4 +124,31 @@ After these steps elasticsearch and kibana are ready to get data coming from nif
 ## The Data flow
 When you complete the configuration of NiFi, Elasticsearch, and Kibana, go to NiFi and run all the processors then go to the *main.py* script and run it. After few seconds you can see the scraper that opens a chrome web page and starts to acquire data from Twitter. From NiFi you can see data flowing along processors. Elasticsearch receives the first PUT and creates an index called *tweet_dataset*, from Kibana you can start to visualize the coming data.
 
+# How to run the project from the dashboard
+Follow the previous configurations then start to read these instructions.
+
+1. Download and install XAMPP on your machine. 
+
+2. Copy the *web_dashboard* folder of this project and paste it in *htdocs* XAMPP's folder.
+
+3. Go to: http://localhost/web_dashboard/dashboard.html
+
+4. Set the main.py script as follow:
+     ```python
+
+     userToMonitor = sys.argv[1] #if you need  to take arguments from shell
+     #userToMonitor = "Google" #if you don't need to take arguments from shell de-comment this line
+     #scraper = TweetScraper()
+     #scraper.tweet_query(userToMonitor, begin_year=2015)
+     
+     deletecommand = 'curl -X DELETE "localhost:9200/tweet_dataset/"'
+     if not os.system(deletecommand):
+         scraper = TweetScraper()
+         scraper.tweet_query(userToMonitor, begin_year=2015)
+     ```
+5. Go to dashboard and use the search bar to find a Twitter's user. (Use the user id, the name after the @)
+
+6. Wait few minutes and you can see the charts.
+
+# Conclusions
 
