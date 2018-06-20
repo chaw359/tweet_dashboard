@@ -62,4 +62,19 @@ scraper.tweet_query(userToMonitor, begin_year=2015)
 #     scraper.tweet_query(userToMonitor, begin_year=2015)
 ```
 ## NiFi configuration
+At following link you can download NiFi: [NiFi download](https://nifi.apache.org/download.html)
+Choose the right package for your OS. The version used in this project is 1.6.0.
+This project has been tested only on Macbook pro 13''. The following are instructions for Mac users:
 
+1. Download the .zip file in *Sources* section in the download page of NiFi.
+
+2. Unzip the nifi project, go to NiFi folder and run nifi with *root* permissions:
+
+     `sudo bin/nifi.sh start`
+
+3. Wait few minutes and then go to nifi's web user interface:
+http://localhost:8080/nifi/
+
+4. Import the template that you can find in the project in /nifi_template/ folder, it should be an .xml file.
+
+5. After import right-click on **SendPutOnElasticSearch** processor and 
