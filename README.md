@@ -75,6 +75,10 @@ This project has been tested only on Macbook pro 13''. The following are instruc
 3. Wait few minutes and then go to nifi's web user interface:
 http://localhost:8080/nifi/
 
-4. Import the template that you can find in the project in /nifi_template/ folder, it should be an .xml file.
+4. Import the template that you can find in the project in */nifi_template/* folder, it should be an *.xml* file.
 
-5. After import right-click on **SendPutOnElasticSearch** processor and 
+5. After import right-click on **SendPutOnElasticSearch** processor:
+     *Configure --> Properties*
+   Check if the properties are set as the following:
+   * Script Engine: Python
+   * Script Body: Should contains a python script, if it isn't go to */nifi_template/scripts/* folder and copy the contents of curl_generator.py script and paste in this property.
