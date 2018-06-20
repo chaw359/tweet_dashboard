@@ -151,4 +151,10 @@ Follow the previous configurations then start to read these instructions.
 6. Wait few minutes and you can see the charts.
 
 # Conclusions
+This project is just a prototype so some things cannot work immediatly on your machine. We suppse, also, that you have a minimun knowledge about technologies and programming languages (HTML, Javascript, Python) shown in this readme file.
 
+There are lot things that we can do to improve this project, infact we won't leave this platform in its embrional state but in future we want includes more powerful features as geo-information and facebook/instagram data.
+
+This project has opened our minds to the big data's world improving not only our programming skills but also the abilty to integrate and running different techologies and programming languages all together to get and aggregate results. 
+
+It was a really interesting journey in big data and data visualisation's world.
