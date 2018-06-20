@@ -21,14 +21,14 @@ class TweetScraper:
     as library with chrome driver to do scraping. The data gathered are tweet id, screen name of the monitored user,
     tweet text and timestamp.
     """
-    def __init__(self, username = "bigdataproject.fenza.2018@gmail.com", password="Bigdataproject2018$"):
+    def __init__(self, username = "your_twitter@login_email", password="yourpassword"):
         """
         To visualize a twitter user's home we need to login in Twitter, so is necessary to provide at this class its own
         access data.
         :param username: username of your twitter account
         :param password: password of your twitter account
         """
-        #location of the chrome driver
+        #location of the chrome driver, the absolute path is needed if you want run the project from the web
         self.driver = webdriver.Chrome("/Users/gfuccio/GitHub/tweet_dashboard/driver/chromedriver")
 
         self.sentimentAnalyzer = SentimentAnalyzer()
@@ -39,7 +39,7 @@ class TweetScraper:
         self.__login(username, password)
 
 
-    def tweet_query(self, username="BigDataProject5", begin_year = 2017, end_year = 2018):
+    def tweet_query(self, username="Google", begin_year = 2017, end_year = 2018):
         """
         This method performs a query on twitter, in particular the query need only the username of the user that
         we want to monitor. This method takes also as argument a year's range, begin year, where to start, and end year,
@@ -151,7 +151,8 @@ class TweetScraper:
 
     def __write_tweet_oncsv(self, list_of_tweet, root_directory="/Users/gfuccio/GitHub/tweet_dashboard/dataset/", filename = "tweet_dataset.csv", time_step=20):
         """
-        This method performs the tweets data writing on a csv.
+        This method performs the tweets data writing on a csv. The absloute path is needed if you want run the project
+        via Web
         :param list_of_tweet: list of tweet to store
         :param root_directory: absolute path of the folder where to store the dataser
         :param filename: name of the dataset
@@ -166,11 +167,11 @@ class TweetScraper:
                 data = pd.read_csv(root_directory + filename, sep=";", index_col=0)  # leggo il csv relativo al dataset
             else:#otherwise we create the structure
                 print("Creating the dataset structure...")
-                data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment', 'link'])
+                data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment', 'link', 'timestamp'])
         else:#if the root directory doesn't exits, we create it and create also the dataset's structure
             print("Creating the dataset structure...")
             os.mkdir(root_directory)
-            data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment', 'link'])
+            data = pd.DataFrame(columns=['tweet_id', 'username', 'tweet_text', 'topic', 'sentiment', 'link', 'timestamp'])
 
         row = {}
         print("Total tweet to write: ", len(list_of_tweet))
@@ -179,6 +180,14 @@ class TweetScraper:
                 tweet_id = tweet.find_element_by_css_selector("div.content").\
                     find_element_by_css_selector(".tweet-timestamp.js-permalink.js-nav.js-tooltip").\
                     get_attribute("data-conversation-id")
+                ts = tweet.find_element_by_css_selector("div.content").\
+                    find_element_by_css_selector(".tweet-timestamp.js-permalink.js-nav.js-tooltip"). \
+                    find_element_by_tag_name("span").get_attribute("data-time-ms")
+
+                date = datetime.datetime.fromtimestamp(int(ts)/1000.0).strftime("%Y-%m-%d")
+                print("Timestamp:", date)
+
+
                 print("Total tweet reached: ", len(self.tweets_list))
                 #check if the tweet is already present in the list
                 #print("Is tweet id Present?", tweet_id in self.tweets_list)
@@ -195,6 +204,7 @@ class TweetScraper:
                     row['topic'] = topicExtractor.analyze_text(tweet_text)
                     row['sentiment'] = self.sentimentAnalyzer.extract_sentiment(tweet_text)
                     row['link']= self.linkCreator.find_link(tweet_text)
+                    row['timestamp'] = date
                     print("Tweet id: ", tweet_id, "\nTweet text: ", tweet_text)
 
                     self.tweets_list.append(tweet_id)
@@ -211,6 +221,10 @@ class TweetScraper:
         data.to_csv(root_directory + filename, sep=";")
 
         time.sleep(time_step)
+        # here the script waits the creation of the dataset and its positioning in the relation_dataset folder
+        # the dataset positioning is made by NiFi. If you won't use NiFi replace the directory with the dataset
+        # directory where this class store the dataset, the default path is ./dataset/. If you do that you can
+        # avoid the waiting time.
         self.relationExtractor.read_links("/Users/gfuccio/GitHub/tweet_dashboard/relation_dataset/tweet_dataset.csv")
 
         print(data.shape)
