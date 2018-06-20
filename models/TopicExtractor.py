@@ -41,7 +41,8 @@ class TopicExtractor:
         :param num_call: maximumn number of call to avoid infinite recursion process
         :return: the label of the category found
         """
-        url = "http://193.205.163.45:8080/wikipedia-miner/services/exploreCategory?id=" + str(category_id) + "&responseFormat=json&parentCategories=true"
+        # You need to call a wikipedia miner service provider to use this class and evaluate topic
+        url = "http://your.wikipedia.miner.server.ip:port/services/exploreCategory?id=" + str(category_id) + "&responseFormat=json&parentCategories=true"
         categoryResponse = requests.post(url)
         categories = categoryResponse.json()
         #print(categories)
@@ -51,14 +52,10 @@ class TopicExtractor:
 
         if categories['title'] in self.categoryToFind:
             #print(categories['title'] + " found!")
-            #categoryFound[categories['title']] = 1
             return categories['title']
         else:
             if categories['totalParentCategories'] == 0:
-                #print("Total parent categories = 0")
                 return
-                #
-                # return check_parent_category(categories['id'], num_call - 1)
             else:
                 return self.check_parent_category(categories['parentCategories'][0]['id'], num_call - 1)
 
@@ -72,7 +69,8 @@ class TopicExtractor:
         self.main_topics = {}
         self.best_categories = []
         #with this call we found the first level of categories detected for the given text
-        urlSearch = "http://193.205.163.45:8080/wikipedia-miner/services/wikify?source=" + text + "&responseFormat=json"
+        # You need to call a wikipedia miner service provider to use this class and evaluate topic
+        urlSearch = "http://your.wikipedia.miner.server.ip:port/wikipedia-miner/services/wikify?source=" + text + "&responseFormat=json"
         response = requests.post(urlSearch)
         try:
             topics = response.json()['detectedTopics']
@@ -107,7 +105,8 @@ class TopicExtractor:
                     self.main_topics[key] = self.categoryFound[key]
         except KeyError:
             pass
-
+        except ET.ParseError:
+            pass
 
         self.__evaluate_best_topics()
         if len(self.best_categories) == 0:
@@ -152,7 +151,9 @@ class TopicExtractor:
         for topic in topics:
             #print(topic)
             print("ID: " + str(topic['id']) + " Topic Name: " + topic['title'])
-            urlArticle = "http://193.205.163.45:8080/wikipedia-miner/services/exploreArticle?id=" + str(
+
+            # You need to call a wikipedia miner service provider to use this class and evaluate topic
+            urlArticle = "http:///your.wikipedia.miner.server.ip:port/exploreArticle?id=" + str(
                 topic['id']) + "&responseFormat=json&parentCategories=true"
             print("Request:", urlArticle)
             response = requests.post(urlArticle)
