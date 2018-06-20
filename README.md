@@ -63,7 +63,9 @@ scraper.tweet_query(userToMonitor, begin_year=2015)
 ```
 ## NiFi configuration
 At following link you can download NiFi: [NiFi download](https://nifi.apache.org/download.html)
+
 Choose the right package for your OS. The version used in this project is 1.6.0.
+
 This project has been tested only on Macbook pro 13''. The following are instructions for Mac users:
 
 1. Download the .zip file in *Sources* section in the download page of NiFi.
@@ -91,8 +93,11 @@ After these steps, NiFi is ready to get data coming from the scraper. (Here we s
 
 ## Elasticsearch and Kibana
 At following link you can download elasticsearch sources folder: [ES download](https://www.elastic.co/downloads/elasticsearch)
+
 At following link you can download kibana sources folder: [Kibana download](https://www.elastic.co/downloads/kibana)
+
 Choose the right package for your OS. The version used in this project is 6.2.4 for both ES and Kibana
+
 This project has been tested only on Macbook pro 13''. The following are instructions for Mac users:
 
 1. Download the .zip file in the download page.
