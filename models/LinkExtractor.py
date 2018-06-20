@@ -98,7 +98,7 @@ class LinkExtractor:
                     self.links[link]['num_tag'] += 1
                     self.best_links.append({link:self.links[link]})
                 else:
-                    print("Lista piena, controllo se il num di tag di ", link, "è maggiore di un elemento della best links!")
+                    print("The list is full, checking if the #tags of", link, "is greater than an element of a best links")
                     toRemove =[]
                     toAdd = []
                     for best_link in self.best_links:
@@ -160,5 +160,6 @@ class LinkExtractor:
 
         jsonString = jsonString[:-1] + '],"links":[' + jsonLinks[:-1] + '] }'
 
+        # here is needed the absolute path if we need to run the project via Web
         with open('/Users/gfuccio/GitHub/tweet_dashboard/relation_dataset/relations.json', 'w') as outfile:
             outfile.write(jsonString)
