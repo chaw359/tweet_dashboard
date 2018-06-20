@@ -78,7 +78,50 @@ http://localhost:8080/nifi/
 4. Import the template that you can find in the project in */nifi_template/* folder, it should be an *.xml* file.
 
 5. After import right-click on **SendPutOnElasticSearch** processor:
+     
      *Configure --> Properties*
+  
    Check if the properties are set as the following:
-   * Script Engine: Python
-   * Script Body: Should contains a python script, if it isn't go to */nifi_template/scripts/* folder and copy the contents of curl_generator.py script and paste in this property.
+   * **Script Engine**: Python
+   * **Script Body**: Should contain a python script, if it isn't, go to */nifi_template/scripts/* folder and copy the contents of the curl_generator.py script and paste in this property.
+
+6. Check if the **Controller Services** in *Nifi Flow Configuration* panel are running, if not, run them before to run the processors
+
+After these steps, NiFi is ready to get data coming from the scraper. (Here we suppose that you know something about NiFi, this is not a NiFi tutorial)
+
+## Elasticsearch and Kibana
+At following link you can download elasticsearch sources folder: [ES download](https://www.elastic.co/downloads/elasticsearch)
+At following link you can download kibana sources folder: [Kibana download](https://www.elastic.co/downloads/kibana)
+Choose the right package for your OS. The version used in this project is 6.2.4 for both ES and Kibana
+This project has been tested only on Macbook pro 13''. The following are instructions for Mac users:
+
+1. Download the .zip file in the download page.
+
+2. Unzip the elasticsearch project, go to its root folder and run ES:
+
+     `bin/elasticsearch`
+
+3. Unzip the kibana project, open another terminal and go to its root folder:
+
+     `bin/kibana`
+
+3. Wait few minutes and then go to kibana's web user interface:
+http://localhost:5601
+
+4. Before starting to draw charts you have to create an **index pattern**:
+     
+     *Management --> Index Patterns --> Create index patterns*
+   Then filter the different indexes in a way that only one match with your filtering query. Then click on *Next step* and confirm the creation
+
+5. Now you can draw charts in the *Visualize* section
+
+6. After charts are created in the *Dashboard* section you can create a new dashboard where you can add your charts.
+
+7. When you have created the dashboard save it and click on *share* button in the top menu and see the different ways to share your dashboard.
+
+After these steps elasticsearch and kibana are ready to get data coming from nifi and visualize them.
+
+## The Data flow
+When you complete the configuration of NiFi, Elasticsearch, and Kibana, go to NiFi and run all the processors then go to the *main.py* script and run it. After few seconds you can see the scraper that opens a chrome web page and starts to acquire data from Twitter. From NiFi you can see data flowing along processors. Elasticsearch receives the first PUT and creates an index called *tweet_dataset*, from Kibana you can start to visualize the coming data.
+
+
